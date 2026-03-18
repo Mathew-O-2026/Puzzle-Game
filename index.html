@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>15 Puzzle</title>
+    <link rel="stylesheet" href="Style.css" />
+  </head>
+  <body>
+    <main>
+      <header>
+        <h1>15 Puzzle</h1>
+        <p>Slide tiles to order the numbers from 1 to 15.</p>
+      </header>
+
+      <section class="game">
+        <div class="status">
+          <div class="status__item">
+            <strong>Moves</strong>
+            <span id="moves">0</span>
+          </div>
+          <div class="status__item">
+            <strong>Time</strong>
+            <span id="timer">00:00</span>
+          </div>
+        </div>
+
+        <div id="puzzle" class="puzzle" aria-label="15 puzzle board" role="application"></div>
+
+        <div class="controls">
+          <button id="shuffleBtn" type="button">Shuffle</button>
+          <button id="resetBtn" type="button">Reset</button>
+        </div>
+
+        <div class="hint">
+          Use arrow keys or click a tile next to the empty space to move it.
+        </div>
+      </section>
+
+      <footer>
+        <small>Built with HTML, CSS, and JavaScript.</small>
+      </footer>
+    </main>
+
+    <script src="Script.js"></script>
+  </body>
+</html>
