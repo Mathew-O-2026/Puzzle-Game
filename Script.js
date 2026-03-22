@@ -43,6 +43,8 @@ function canMove(index) {
 function moveTile(index) {
   if (!canMove(index)) return;
 
+  if (!startAt) startTimer();
+
   const emptyIndex = getEmptyIndex(state);
   swap(state, index, emptyIndex);
   moves += 1;
@@ -51,27 +53,18 @@ function moveTile(index) {
 
   if (isSolved(state)) {
     stopTimer();
-    setTimeout(() => {
-      alert(`Nice! You solved it in ${moves} moves and ${formatDuration(Date.now() - startAt)}.`);
-    }, 100);
+    alert(`You solved it in ${moves} moves and ${formatDuration(Date.now() - startAt)}!`);
   }
 }
 
 function shuffleState() {
-  // Start from a solved board and make many random legal moves
   state = createSolvedState();
 
-  const shuffleCount = 200;
-  for (let i = 0; i < shuffleCount; i += 1) {
+  for (let i = 0; i < 200; i += 1) {
     const emptyIndex = getEmptyIndex(state);
     const neighbors = getNeighbors(emptyIndex);
     const nextIndex = neighbors[Math.floor(Math.random() * neighbors.length)];
     swap(state, emptyIndex, nextIndex);
-  }
-
-  // Ensure we don't start already solved
-  if (isSolved(state)) {
-    shuffleState();
   }
 }
 
@@ -96,7 +89,7 @@ function formatDuration(ms) {
 }
 
 function startTimer() {
-  if (timerId) return; // already running
+  if (timerId) return;
 
   startAt = Date.now();
   timerId = window.setInterval(() => {
@@ -128,21 +121,13 @@ function render() {
   puzzleEl.innerHTML = "";
 
   state.forEach((value, index) => {
-    const tile = document.createElement("button");
+    const tile = document.createElement("div");
     tile.className = "tile";
-    tile.type = "button";
-    tile.disabled = value === null;
-
     if (value === null) {
       tile.classList.add("empty");
-      tile.setAttribute("aria-label", "Empty space");
     } else {
       tile.textContent = String(value);
-      tile.setAttribute("aria-label", `Tile ${value}`);
-      tile.addEventListener("click", () => {
-        if (!startAt) startTimer();
-        moveTile(index);
-      });
+      tile.addEventListener("click", () => moveTile(index));
     }
 
     puzzleEl.appendChild(tile);
