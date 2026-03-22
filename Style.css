@@ -13,6 +13,7 @@ body {
     gap: 5px;
     margin: 20px auto;
     width: 420px;
+    color: green;
 }
 
 .tile {
