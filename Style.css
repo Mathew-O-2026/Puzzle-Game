@@ -28,7 +28,7 @@ body {
 }
 
 .tile.empty {
-    background: white;
+    background: blue;
     cursor: default;
 }
 
