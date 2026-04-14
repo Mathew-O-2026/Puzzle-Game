@@ -1,16 +1,42 @@
+// Page Navigation
+function startGame(game) {
+  const pages = document.querySelectorAll('.page');
+  pages.forEach(p => p.classList.add('hidden'));
+  document.getElementById(game).classList.remove('hidden');
+  
+  if (game === '15puzzle') {
+    initPuzzle();
+  } else if (game === 'memory') {
+    initMemory();
+  }
+}
+
+function goMenu() {
+  const pages = document.querySelectorAll('.page');
+  pages.forEach(p => p.classList.add('hidden'));
+  document.getElementById('menu').classList.remove('hidden');
+  stopTimer();
+  stopMemoryTimer();
+}
+
+// Shared Utilities
+function formatDuration(ms) {
+  const totalSeconds = Math.floor(ms / 1000);
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+}
+
+// =========================
+// 15 PUZZLE GAME
+// =========================
 const BOARD_SIZE = 4;
 const TOTAL_TILES = BOARD_SIZE * BOARD_SIZE;
 
-const puzzleEl = document.getElementById("puzzle");
-const movesEl = document.getElementById("moves");
-const timerEl = document.getElementById("timer");
-const shuffleBtn = document.getElementById("shuffleBtn");
-const resetBtn = document.getElementById("resetBtn");
-
-let state = [];
-let moves = 0;
-let timerId = null;
-let startAt = null;
+let puzzleState = [];
+let puzzleMoves = 0;
+let puzzleTimerId = null;
+let puzzleStartAt = null;
 
 function createSolvedState() {
   return Array.from({ length: TOTAL_TILES }, (_, i) => (i === TOTAL_TILES - 1 ? null : i + 1));
@@ -29,7 +55,7 @@ function swap(arr, a, b) {
 }
 
 function canMove(index) {
-  const emptyIndex = getEmptyIndex(state);
+  const emptyIndex = getEmptyIndex(puzzleState);
   const row = Math.floor(index / BOARD_SIZE);
   const col = index % BOARD_SIZE;
   const emptyRow = Math.floor(emptyIndex / BOARD_SIZE);
@@ -43,28 +69,28 @@ function canMove(index) {
 function moveTile(index) {
   if (!canMove(index)) return;
 
-  if (!startAt) startTimer();
+  if (!puzzleStartAt) startTimer();
 
-  const emptyIndex = getEmptyIndex(state);
-  swap(state, index, emptyIndex);
-  moves += 1;
-  updateStatus();
-  render();
+  const emptyIndex = getEmptyIndex(puzzleState);
+  swap(puzzleState, index, emptyIndex);
+  puzzleMoves += 1;
+  updatePuzzleStatus();
+  renderPuzzle();
 
-  if (isSolved(state)) {
+  if (isSolved(puzzleState)) {
     stopTimer();
-    alert(`You solved it in ${moves} moves and ${formatDuration(Date.now() - startAt)}!`);
+    alert(`You solved it in ${puzzleMoves} moves and ${formatDuration(Date.now() - puzzleStartAt)}!`);
   }
 }
 
 function shuffleState() {
-  state = createSolvedState();
+  puzzleState = createSolvedState();
 
   for (let i = 0; i < 200; i += 1) {
-    const emptyIndex = getEmptyIndex(state);
+    const emptyIndex = getEmptyIndex(puzzleState);
     const neighbors = getNeighbors(emptyIndex);
     const nextIndex = neighbors[Math.floor(Math.random() * neighbors.length)];
-    swap(state, emptyIndex, nextIndex);
+    swap(puzzleState, emptyIndex, nextIndex);
   }
 }
 
@@ -81,46 +107,40 @@ function getNeighbors(index) {
   return neighbors;
 }
 
-function formatDuration(ms) {
-  const totalSeconds = Math.floor(ms / 1000);
-  const minutes = Math.floor(totalSeconds / 60);
-  const seconds = totalSeconds % 60;
-  return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
-}
-
 function startTimer() {
-  if (timerId) return;
+  if (puzzleTimerId) return;
 
-  startAt = Date.now();
-  timerId = window.setInterval(() => {
-    timerEl.textContent = formatDuration(Date.now() - startAt);
+  puzzleStartAt = Date.now();
+  puzzleTimerId = window.setInterval(() => {
+    document.getElementById("timer").textContent = formatDuration(Date.now() - puzzleStartAt);
   }, 500);
 }
 
 function stopTimer() {
-  if (!timerId) return;
-  clearInterval(timerId);
-  timerId = null;
+  if (!puzzleTimerId) return;
+  clearInterval(puzzleTimerId);
+  puzzleTimerId = null;
 }
 
-function resetGame() {
+function resetPuzzle() {
   stopTimer();
-  state = createSolvedState();
-  moves = 0;
-  updateStatus();
-  render();
-  timerEl.textContent = "00:00";
-  startAt = null;
+  puzzleState = createSolvedState();
+  puzzleMoves = 0;
+  updatePuzzleStatus();
+  renderPuzzle();
+  document.getElementById("timer").textContent = "00:00";
+  puzzleStartAt = null;
 }
 
-function updateStatus() {
-  movesEl.textContent = String(moves);
+function updatePuzzleStatus() {
+  document.getElementById("moves").textContent = String(puzzleMoves);
 }
 
-function render() {
+function renderPuzzle() {
+  const puzzleEl = document.getElementById("puzzle");
   puzzleEl.innerHTML = "";
 
-  state.forEach((value, index) => {
+  puzzleState.forEach((value, index) => {
     const tile = document.createElement("div");
     tile.className = "tile";
     if (value === null) {
@@ -134,9 +154,9 @@ function render() {
   });
 }
 
-function handleKeydown(event) {
-  if (!state.length) return;
-  const emptyIndex = getEmptyIndex(state);
+function handlePuzzleKeydown(event) {
+  if (!puzzleState.length) return;
+  const emptyIndex = getEmptyIndex(puzzleState);
   let targetIndex = null;
 
   switch (event.key) {
@@ -157,34 +177,150 @@ function handleKeydown(event) {
   }
 
   if (targetIndex >= 0 && targetIndex < TOTAL_TILES && canMove(targetIndex)) {
-    if (!startAt) startTimer();
+    if (!puzzleStartAt) startTimer();
     moveTile(targetIndex);
     event.preventDefault();
   }
 }
 
-function bindEvents() {
-  shuffleBtn.addEventListener("click", () => {
+function bindPuzzleEvents() {
+  document.getElementById("shuffleBtn").addEventListener("click", () => {
     stopTimer();
     shuffleState();
-    moves = 0;
-    updateStatus();
-    render();
-    timerEl.textContent = "00:00";
-    startAt = null;
+    puzzleMoves = 0;
+    updatePuzzleStatus();
+    renderPuzzle();
+    document.getElementById("timer").textContent = "00:00";
+    puzzleStartAt = null;
   });
 
-  resetBtn.addEventListener("click", () => {
-    resetGame();
+  document.getElementById("resetBtn").addEventListener("click", () => {
+    resetPuzzle();
   });
 
-  window.addEventListener("keydown", handleKeydown);
+  window.addEventListener("keydown", handlePuzzleKeydown);
 }
 
-function init() {
-  state = createSolvedState();
-  render();
-  bindEvents();
+function initPuzzle() {
+  puzzleState = createSolvedState();
+  renderPuzzle();
+  bindPuzzleEvents();
 }
 
-init();
+// =========================
+// MEMORY GAME
+// =========================
+let memoryCards = [];
+let memoryMatches = 0;
+let memoryMoves = 0;
+let memoryFlipped = [];
+let memoryTimerId = null;
+let memoryStartAt = null;
+let memoryLocked = false;
+
+function createMemoryDeck() {
+  const numbers = [];
+  for (let i = 1; i <= 8; i++) {
+    numbers.push(i, i);
+  }
+  return numbers.sort(() => Math.random() - 0.5);
+}
+
+function flipCard(index) {
+  if (memoryLocked || memoryFlipped.includes(index) || memoryCards[index].matched) return;
+
+  if (!memoryStartAt) startMemoryTimer();
+
+  memoryFlipped.push(index);
+  memoryCards[index].flipped = true;
+  renderMemory();
+
+  if (memoryFlipped.length === 2) {
+    memoryMoves += 1;
+    updateMemoryStatus();
+    checkMemoryMatch();
+  }
+}
+
+function checkMemoryMatch() {
+  memoryLocked = true;
+  const [first, second] = memoryFlipped;
+
+  if (memoryCards[first].value === memoryCards[second].value) {
+    memoryCards[first].matched = true;
+    memoryCards[second].matched = true;
+    memoryMatches += 1;
+    memoryFlipped = [];
+    memoryLocked = false;
+
+    if (memoryMatches === 8) {
+      stopMemoryTimer();
+      alert(`You won in ${memoryMoves} moves and ${formatDuration(Date.now() - memoryStartAt)}!`);
+    }
+  } else {
+    setTimeout(() => {
+      memoryCards[first].flipped = false;
+      memoryCards[second].flipped = false;
+      memoryFlipped = [];
+      memoryLocked = false;
+      renderMemory();
+    }, 600);
+  }
+}
+
+function startMemoryTimer() {
+  if (memoryTimerId) return;
+
+  memoryStartAt = Date.now();
+  memoryTimerId = window.setInterval(() => {
+    document.getElementById("mem-timer").textContent = formatDuration(Date.now() - memoryStartAt);
+  }, 500);
+}
+
+function stopMemoryTimer() {
+  if (!memoryTimerId) return;
+  clearInterval(memoryTimerId);
+  memoryTimerId = null;
+}
+
+function resetMemory() {
+  stopMemoryTimer();
+  memoryCards = createMemoryDeck().map(val => ({ value: val, flipped: false, matched: false }));
+  memoryMatches = 0;
+  memoryMoves = 0;
+  memoryFlipped = [];
+  memoryLocked = false;
+  memoryStartAt = null;
+  updateMemoryStatus();
+  renderMemory();
+  document.getElementById("mem-timer").textContent = "00:00";
+}
+
+function updateMemoryStatus() {
+  document.getElementById("mem-moves").textContent = String(memoryMoves);
+}
+
+function renderMemory() {
+  const gridEl = document.getElementById("memory-grid");
+  gridEl.innerHTML = "";
+
+  memoryCards.forEach((card, index) => {
+    const cardEl = document.createElement("div");
+    cardEl.className = "memory-card";
+    if (card.matched) {
+      cardEl.classList.add("matched");
+    }
+    if (card.flipped) {
+      cardEl.classList.add("flipped");
+    }
+
+    cardEl.textContent = card.flipped || card.matched ? card.value : "?";
+    cardEl.addEventListener("click", () => flipCard(index));
+
+    gridEl.appendChild(cardEl);
+  });
+}
+
+function initMemory() {
+  resetMemory();
+}
