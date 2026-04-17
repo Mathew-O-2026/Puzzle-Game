@@ -323,4 +323,9 @@ function renderMemory() {
 
 function initMemory() {
   resetMemory();
+  
+  const memResetBtn = document.getElementById("memResetBtn");
+  if (memResetBtn) {
+    memResetBtn.addEventListener("click", () => resetMemory());
+  }
 }
