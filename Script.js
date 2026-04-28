@@ -1,9 +1,14 @@
 // Page Navigation
+let activeGame = null;
+let puzzleEventsBound = false;
+let memoryEventsBound = false;
+
 function startGame(game) {
   const pages = document.querySelectorAll('.page');
   pages.forEach(p => p.classList.add('hidden'));
   document.getElementById(game).classList.remove('hidden');
-  
+  activeGame = game;
+
   if (game === '15puzzle') {
     initPuzzle();
   } else if (game === 'memory') {
@@ -15,6 +20,7 @@ function goMenu() {
   const pages = document.querySelectorAll('.page');
   pages.forEach(p => p.classList.add('hidden'));
   document.getElementById('menu').classList.remove('hidden');
+  activeGame = null;
   stopTimer();
   stopMemoryTimer();
 }
@@ -155,6 +161,7 @@ function renderPuzzle() {
 }
 
 function handlePuzzleKeydown(event) {
+  if (activeGame !== '15puzzle') return;
   if (!puzzleState.length) return;
   const emptyIndex = getEmptyIndex(puzzleState);
   let targetIndex = null;
@@ -184,6 +191,9 @@ function handlePuzzleKeydown(event) {
 }
 
 function bindPuzzleEvents() {
+  if (puzzleEventsBound) return;
+  puzzleEventsBound = true;
+
   document.getElementById("shuffleBtn").addEventListener("click", () => {
     stopTimer();
     shuffleState();
@@ -202,8 +212,7 @@ function bindPuzzleEvents() {
 }
 
 function initPuzzle() {
-  puzzleState = createSolvedState();
-  renderPuzzle();
+  resetPuzzle();
   bindPuzzleEvents();
 }
 
@@ -321,11 +330,17 @@ function renderMemory() {
   });
 }
 
-function initMemory() {
-  resetMemory();
-  
+function bindMemoryEvents() {
+  if (memoryEventsBound) return;
+  memoryEventsBound = true;
+
   const memResetBtn = document.getElementById("memResetBtn");
   if (memResetBtn) {
     memResetBtn.addEventListener("click", () => resetMemory());
   }
+}
+
+function initMemory() {
+  resetMemory();
+  bindMemoryEvents();
 }

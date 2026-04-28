@@ -2,55 +2,69 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Puzzle Game</title>
     <link rel="stylesheet" href="Style.css">
 </head>
 <body>
-    <!-- Menu Page -->
-    <div id="menu" class="page">
-        <h1>Puzzle Games</h1>
-        <div class="menu-buttons">
-            <button class="menu-btn" onclick="startGame('15puzzle')">15 Puzzle</button>
-            <button class="menu-btn" onclick="startGame('memory')">Memory Tiles</button>
-        </div>
-    </div>
+    <main class="app-shell">
+        <!-- Menu Page -->
+        <section id="menu" class="page page--menu">
+            <div class="page-card">
+                <h1>Puzzle Games</h1>
+                <p class="subtitle">Choose a game and try to beat your best score.</p>
+                <div class="menu-buttons">
+                    <button class="menu-btn" onclick="startGame('15puzzle')">15 Puzzle</button>
+                    <button class="menu-btn" onclick="startGame('memory')">Memory Tiles</button>
+                </div>
+            </div>
+        </section>
 
-    <!-- 15 Puzzle Page -->
-    <div id="15puzzle" class="page hidden">
-        <button class="back-btn" onclick="goMenu()">← Menu</button>
-        <h1>15 Puzzle</h1>
-        <p>Slide tiles to order the numbers from 1 to 15.</p>
+        <!-- 15 Puzzle Page -->
+        <section id="15puzzle" class="page hidden">
+            <div class="page-header">
+                <button class="back-btn" onclick="goMenu()">← Menu</button>
+                <div>
+                    <h1>15 Puzzle</h1>
+                    <p class="subtitle">Slide tiles into order. Use arrow keys or click.</p>
+                </div>
+            </div>
 
-        <div class="status">
-            <div>Moves: <span id="moves">0</span></div>
-            <div>Time: <span id="timer">00:00</span></div>
-        </div>
+            <div class="status-row">
+                <div class="status-card">Moves: <span id="moves">0</span></div>
+                <div class="status-card">Time: <span id="timer">00:00</span></div>
+            </div>
 
-        <div id="puzzle" class="puzzle"></div>
+            <div id="puzzle" class="puzzle"></div>
 
-        <div class="controls">
-            <button id="shuffleBtn">Shuffle</button>
-            <button id="resetBtn">Reset</button>
-        </div>
-    </div>
+            <div class="controls">
+                <button id="shuffleBtn">Shuffle</button>
+                <button id="resetBtn">Reset</button>
+            </div>
+        </section>
 
-    <!-- Memory Tiles Page -->
-    <div id="memory" class="page hidden">
-        <button class="back-btn" onclick="goMenu()">← Menu</button>
-        <h1>Memory Tiles</h1>
-        <p>Match pairs of numbers.</p>
+        <!-- Memory Tiles Page -->
+        <section id="memory" class="page hidden">
+            <div class="page-header">
+                <button class="back-btn" onclick="goMenu()">← Menu</button>
+                <div>
+                    <h1>Memory Tiles</h1>
+                    <p class="subtitle">Flip cards and match all pairs.</p>
+                </div>
+            </div>
 
-        <div class="status">
-            <div>Moves: <span id="mem-moves">0</span></div>
-            <div>Time: <span id="mem-timer">00:00</span></div>
-        </div>
+            <div class="status-row">
+                <div class="status-card">Moves: <span id="mem-moves">0</span></div>
+                <div class="status-card">Time: <span id="mem-timer">00:00</span></div>
+            </div>
 
-        <div id="memory-grid" class="memory-grid"></div>
+            <div id="memory-grid" class="memory-grid"></div>
 
-        <div class="controls">
-            <button id="memResetBtn">Reset</button>
-        </div>
-    </div>
+            <div class="controls">
+                <button id="memResetBtn">Reset</button>
+            </div>
+        </section>
+    </main>
 
     <script src="Script.js"></script>
 </body>
